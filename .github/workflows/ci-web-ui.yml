@@ -1,0 +1,48 @@
+name: CI — build toolkit & web-ui
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build toolkit and web-ui
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install & build toolkit (typescript/)
+        working-directory: ./
+        run: |
+          npm ci --prefix typescript
+          npm run build --prefix typescript
+
+      - name: Install & build web-ui
+        working-directory: ./
+        run: |
+          npm ci --prefix typescript/examples/web-ui
+          npm run build --prefix typescript/examples/web-ui
+
+      - name: Deploy to Vercel (optional)
+        if: ${{ secrets.VERCEL_TOKEN != '' && github.ref == 'refs/heads/main' }}
+        run: |
+          echo "Deploying web-ui to Vercel (production)"
+          npm install -g vercel
+          vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --confirm --cwd typescript/examples/web-ui
+
+      - name: Upload build logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-ui-build-logs
+          path: |
+            typescript/examples/web-ui/build.log

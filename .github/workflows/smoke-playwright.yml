@@ -1,0 +1,49 @@
+name: Smoke & Playwright
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+
+jobs:
+  smoke:
+    name: AI-SDK smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install AI SDK example deps
+        run: |
+          cd typescript/examples/ai-sdk
+          npm ci
+      - name: Run smoke tests (mocked)
+        # Enable mock mode so CI doesn't require SANDBOX credentials. Set
+        # VISA_ACCEPTANCE_API_MOCK=true to return deterministic fake responses.
+        env:
+          VISA_ACCEPTANCE_API_MOCK: 'true'
+        run: |
+          cd typescript/examples/ai-sdk
+          npm run test:smoke
+
+  web-ui:
+    name: Web-UI Playwright
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install Web UI deps and Playwright browsers
+        run: |
+          cd typescript/examples/web-ui
+          npm ci
+          npx playwright install --with-deps
+      - name: Run Playwright tests (mocked)
+        env:
+          VISA_ACCEPTANCE_API_MOCK: 'true'
+        run: |
+          cd typescript/examples/web-ui
+          npm run test:playwright

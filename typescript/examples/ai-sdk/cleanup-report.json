@@ -1,0 +1,18 @@
+{
+  "env": "SANDBOX",
+  "startedAt": "2025-10-25T23:47:06.276Z",
+  "days": 1,
+  "apply": false,
+  "invoices": {
+    "scanned": 27,
+    "candidates": [],
+    "canceled": []
+  },
+  "paymentLinks": {
+    "scanned": 12,
+    "candidates": [],
+    "updated": []
+  },
+  "finishedAt": "2025-10-25T23:47:07.371Z",
+  "durationMs": 1095
+}

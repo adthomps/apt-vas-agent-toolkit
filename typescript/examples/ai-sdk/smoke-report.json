@@ -1,0 +1,151 @@
+{
+  "env": "SANDBOX",
+  "startedAt": "2025-10-25T23:45:32.489Z",
+  "finishedAt": "2025-10-25T23:45:35.477Z",
+  "durationMs": 2988,
+  "created": {
+    "paymentLinkId": "SMOKE819958",
+    "invoiceId": "SMK850965"
+  },
+  "steps": [
+    {
+      "name": "pl:list",
+      "ok": true,
+      "ms": 868,
+      "result": {
+        "_links": {
+          "self": {
+            "href": "/ipl/v2/payment-links/?offset=0&limit=1",
+            "method": "GET"
+          },
+          "next": {
+            "href": "/ipl/v2/payment-links/?offset=1&limit=1",
+            "method": "GET"
+          }
+        },
+        "submitTimeUtc": "2025-10-25T23:45:33.258769740Z",
+        "totalLinks": 11,
+        "links": [
+          {
+            "_links": {
+              "self": {
+                "href": "/ipl/v2/payment-links/SMOKE990901",
+                "method": "GET"
+              }
+            },
+            "id": "SMOKE990901",
+            "status": "ACTIVE",
+            "createdDate": "2025-10-25 23:44:18.773",
+            "processingInformation": {
+              "linkType": "PURCHASE"
+            },
+            "purchaseInformation": {
+              "purchaseNumber": "SMOKE990901",
+              "paymentLink": "https://ebctest.cybersource.com:443/ebc2/payByLink/pay/YxybG0qcZMeKnjYmsp9p0luNgXPxtuMKuVXxXCzGD2YH2ymFqPy1oct7IsJ9bZAc"
+            },
+            "orderInformation": {
+              "amountDetails": {
+                "totalAmount": "5",
+                "currency": "USD"
+              },
+              "lineItems": [
+                {
+                  "productName": "Smoke Test",
+                  "unitPrice": "5"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "pl:create",
+      "ok": true,
+      "ms": 701,
+      "result": {
+        "id": "SMOKE819958",
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "name": "inv:list",
+      "ok": true,
+      "ms": 291,
+      "result": {
+        "_links": {
+          "self": {
+            "href": "/v2/invoices/?offset=0&limit=1",
+            "method": "GET"
+          }
+        },
+        "submitTimeUtc": "2025-10-25T23:45:34.266040358Z",
+        "totalInvoices": 26,
+        "invoices": [
+          {
+            "_links": {
+              "self": {
+                "href": "/v2/invoices/SMK714075",
+                "method": "GET"
+              },
+              "update": {
+                "href": "/v2/invoices/SMK714075",
+                "method": "PUT"
+              },
+              "deliver": {
+                "href": "/v2/invoices/SMK714075/delivery",
+                "method": "POST"
+              },
+              "cancel": {
+                "href": "/v2/invoices/SMK714075/cancelation",
+                "method": "POST"
+              }
+            },
+            "id": "SMK714075",
+            "status": "SENT",
+            "customerInformation": {
+              "name": "Smoke Bot"
+            },
+            "invoiceInformation": {
+              "dueDate": "2025-11-01T00:00:00.000Z"
+            },
+            "orderInformation": {
+              "amountDetails": {
+                "totalAmount": "5",
+                "currency": "USD"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "inv:create",
+      "ok": true,
+      "ms": 377,
+      "result": {
+        "id": "SMK850965",
+        "status": "SENT"
+      }
+    },
+    {
+      "name": "pl:get",
+      "ok": true,
+      "ms": 485,
+      "result": {
+        "id": "SMOKE819958",
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "name": "inv:get",
+      "ok": true,
+      "ms": 262,
+      "result": {
+        "id": "SMK850965",
+        "status": "SENT"
+      }
+    }
+  ],
+  "overall": "PASS"
+}
