@@ -36,7 +36,26 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
-      - name: Install Web UI deps and Playwright browsers
+      - name: Cache web-ui node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            typescript/examples/web-ui/node_modules
+          key: ${{ runner.os }}-web-ui-node-${{ hashFiles('typescript/examples/web-ui/package-lock.json') }}
+
+      - name: Cache npm cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('typescript/examples/web-ui/package-lock.json') }}
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-browsers-${{ hashFiles('typescript/examples/web-ui/package-lock.json') }}
+
+      - name: Install Web UI deps
         run: |
           cd typescript/examples/web-ui
           # Use npm ci when a lockfile exists; otherwise fall back to npm install
@@ -45,8 +64,14 @@ jobs:
           else
             npm install
           fi
-          npx playwright install --with-deps
         shell: bash
+
+      - name: Install Playwright deps and browsers (official action)
+        uses: microsoft/playwright-action@v1
+        with:
+          check-deps: true
+          browsers: 'chromium,firefox,webkit'
+
       - name: Run Playwright tests (mocked)
         env:
           VISA_ACCEPTANCE_API_MOCK: 'true'
