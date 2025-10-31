@@ -1,8 +1,12 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 test('Agent skips prompt when no fields missing after inference', async ({ page }) => {
-  // Return no missing fields for list-invoices (path that doesn’t need OpenAI)
+  // Return no missing fields for list-invoices (path that doesnâ€™t need OpenAI)
   await page.route('**/api/extract-fields', async (route) => {
     const body = { extracted: {}, missing: [], action: 'list-invoices' };
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
