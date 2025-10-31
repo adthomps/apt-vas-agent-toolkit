@@ -22,7 +22,7 @@ pids
 .env
 .env.*.local
 .env.local
-.env.template
+
 
 # Example artifacts (logs, reports, generated clients)
 **/audit-log.jsonl
