@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.1.10",
-    "@visaacceptance/agent-toolkit": "file:../../",
+    "@visaacceptance/agent-toolkit": "^0.0.94",
     "ai": "^3.4.33",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
