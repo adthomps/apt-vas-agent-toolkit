@@ -9,12 +9,12 @@ on:
 jobs:
   smoke:
     name: AI-SDK smoke
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20.x'
       - name: Install AI SDK example deps
         run: |
           cd typescript/examples/ai-sdk
@@ -30,12 +30,15 @@ jobs:
 
   web-ui:
     name: Web-UI Playwright
-    runs-on: ubuntu-latest
+    # Use ubuntu-22.04 because some Playwright OS packages (libasound2, etc.)
+    # are not available on newer runner images. This keeps the browser
+    # dependency installation reliable across GitHub-hosted runners.
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20.x'
       - name: Cache web-ui node_modules
         uses: actions/cache@v4
         with:
@@ -66,11 +69,18 @@ jobs:
           fi
         shell: bash
 
+      - name: Build Web UI
+        run: |
+          cd typescript/examples/web-ui
+          npm run build 2>&1 | tee build.log
+        shell: bash
+
       - name: Install Playwright browsers
         run: |
           cd typescript/examples/web-ui
           # Try installing browsers with OS deps; if that fails, fall back to installing browsers only
-          npx playwright install --with-deps || npx playwright install chromium firefox webkit
+          # Retry once on transient failures, prefer installing deps when possible
+          npx playwright install --with-deps || (sleep 3 && npx playwright install --with-deps) || npx playwright install chromium firefox webkit
         shell: bash
 
       - name: Run Playwright tests (mocked)
