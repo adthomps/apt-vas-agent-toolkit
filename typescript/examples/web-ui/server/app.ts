@@ -295,7 +295,7 @@ type InvoiceRec = {
   status: string;
   customerInformation?: { name?: string; email?: string };
   orderInformation?: { amountDetails?: { totalAmount?: string; currency?: string } };
-  invoiceInformation?: { dueDate?: string; paymentLink?: string };
+  invoiceInformation?: { dueDate?: string; paymentLink?: string; description?: string };
 };
 type PayLinkRec = {
   id: string;
@@ -512,10 +512,10 @@ app.get('/api/payment-links', async (req, res) => {
       // Enrich missing fields (created/paymentLink) via per-item fetch when affordable (limit <= 5)
       if (Array.isArray(parsed?.paymentLinks) && parsed.paymentLinks.length > 0 && limit <= 5) {
         const needsEnrich = parsed.paymentLinks
-          .map((pl:any, idx:number) => ({ idx, pl }))
-          .filter(({ pl }) => !pl?.created || !pl?.paymentLink);
+          .map((pl: any, idx: number) => ({ idx, pl }))
+          .filter(({ pl }: { pl: any }) => !pl?.created || !pl?.paymentLink);
         if (needsEnrich.length > 0) {
-          const tasks = needsEnrich.map(({ idx, pl }) => (async () => {
+          const tasks = needsEnrich.map(({ idx, pl }: { idx: number; pl: any }) => (async () => {
             const id = pl?.id || pl?.paymentLinkId || pl?.reference || pl?.referenceId || pl?.transactionId;
             if (!id) return null;
             try {
@@ -645,10 +645,10 @@ async function enrichPaymentLinksListIfNeeded(parsed: any, limit: number) {
   if (!Array.isArray(parsed?.paymentLinks) || parsed.paymentLinks.length === 0) return parsed;
   if (limit > 5) return parsed;
   const needsEnrich = parsed.paymentLinks
-    .map((pl:any, idx:number) => ({ idx, pl }))
-    .filter(({ pl }) => !pl?.created || !pl?.paymentLink);
+    .map((pl: any, idx: number) => ({ idx, pl }))
+    .filter(({ pl }: { pl: any }) => !pl?.created || !pl?.paymentLink);
   if (needsEnrich.length === 0) return parsed;
-  const tasks = needsEnrich.map(({ idx, pl }) => (async () => {
+  const tasks = needsEnrich.map(({ idx, pl }: { idx: number; pl: any }) => (async () => {
     const id = pl?.id || pl?.paymentLinkId || pl?.reference || pl?.referenceId || pl?.transactionId;
     if (!id) return null;
     try {
@@ -900,13 +900,16 @@ app.post('/api/assist', async (req, res) => {
       inv.customerInformation = inv.customerInformation || {};
       if (customerInformation.email) inv.customerInformation.email = customerInformation.email;
       if (customerInformation.name) inv.customerInformation.name = customerInformation.name;
-      inv.invoiceInformation = inv.invoiceInformation || {} as any;
-      if (invoiceInformation.description) inv.invoiceInformation.description = invoiceInformation.description;
-      if (invoiceInformation.dueDate) inv.invoiceInformation.dueDate = invoiceInformation.dueDate;
-      inv.orderInformation = inv.orderInformation || {} as any;
-      inv.orderInformation.amountDetails = inv.orderInformation.amountDetails || {} as any;
-      inv.orderInformation.amountDetails.totalAmount = twoDecimals(amount);
-      inv.orderInformation.amountDetails.currency = currency;
+      inv.invoiceInformation = inv.invoiceInformation ?? ({} as any);
+      const ii = inv.invoiceInformation! as any;
+      if (invoiceInformation.description) ii.description = invoiceInformation.description;
+      if (invoiceInformation.dueDate) ii.dueDate = invoiceInformation.dueDate;
+      inv.orderInformation = inv.orderInformation ?? ({} as any);
+      const oi = inv.orderInformation! as any;
+      oi.amountDetails = oi.amountDetails ?? ({} as any);
+      const od = oi.amountDetails as any;
+      od.totalAmount = twoDecimals(amount);
+      od.currency = currency;
       return res.json({ type: 'result', action: actionUsed, result: inv });
     }
 
