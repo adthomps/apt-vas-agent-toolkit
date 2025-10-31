@@ -33,11 +33,25 @@ jobs:
           npm run build --prefix typescript/examples/web-ui
 
       - name: Deploy to Vercel (optional)
+        id: vercel_deploy
         if: ${{ secrets.VERCEL_TOKEN != '' && github.ref == 'refs/heads/main' }}
         run: |
           echo "Deploying web-ui to Vercel (production)"
           npm install -g vercel
-          vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --confirm --cwd typescript/examples/web-ui
+          sudo apt-get update
+          sudo apt-get install -y jq
+          DEPLOY_JSON=$(vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --confirm --cwd typescript/examples/web-ui --yes --json)
+          echo "Vercel output: $DEPLOY_JSON"
+          URL=$(echo "$DEPLOY_JSON" | jq -r '.url')
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+
+      - name: Post-deploy health check
+        if: ${{ steps.vercel_deploy.outputs.url != '' }}
+        run: |
+          echo "Health check: ${{ steps.vercel_deploy.outputs.url }}/api/health"
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "${{ steps.vercel_deploy.outputs.url }}/api/health")
+          echo "Status: $HTTP_CODE"
+          test "$HTTP_CODE" = "200"
 
       - name: Upload build logs
         if: failure()
