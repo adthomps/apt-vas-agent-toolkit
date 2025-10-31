@@ -39,8 +39,14 @@ jobs:
       - name: Install Web UI deps and Playwright browsers
         run: |
           cd typescript/examples/web-ui
-          npm ci
+          # Use npm ci when a lockfile exists; otherwise fall back to npm install
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
           npx playwright install --with-deps
+        shell: bash
       - name: Run Playwright tests (mocked)
         env:
           VISA_ACCEPTANCE_API_MOCK: 'true'
