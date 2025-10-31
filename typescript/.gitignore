@@ -134,3 +134,12 @@ dist
 
 /ai-sdk/
 /modelcontextprotocol/
+
+# Local example outputs and secrets
+examples/**/.env
+examples/**/audit-log.jsonl
+examples/**/cleanup-report.json
+examples/**/smoke-report.json
+examples/**/dist
+examples/**/node_modules
+visa-acceptance-rest-client.d.ts

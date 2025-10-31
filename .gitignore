@@ -1,0 +1,71 @@
+.# Repository-level .gitignore
+# Exclude common sensitive files, local envs, build artifacts and example outputs
+
+# Node dependencies
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+.pnpm-debug.log*
+
+# Diagnostic reports
+report.*.json
+
+# Runtime data
+pids
+*.pid
+
+# Environment files (do NOT commit secrets)
+.env
+.env.*.local
+.env.local
+.env.template
+
+# Example artifacts (logs, reports, generated clients)
+**/audit-log.jsonl
+**/smoke-report.json
+**/cleanup-report.json
+**/visa-acceptance-rest-client.*
+**/dist/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+out/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Coverage and test outputs
+coverage/
+.nyc_output
+
+# Caches
+.cache/
+.parcel-cache/
+.rpt2_cache/
+.rts2_cache_*/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.user
+*.sln
+
+# Keys and credentials
+*.pem
+*.key
+*.p12
+*.jks
+credentials.json
+
+# Package archives
+*.tgz
