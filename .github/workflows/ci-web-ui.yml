@@ -31,8 +31,17 @@ jobs:
         run: |
           set -e
           # Capture install + build output to build.log so the Upload artifact step can find it.
-          npm ci --prefix typescript/examples/web-ui 2>&1 | tee typescript/examples/web-ui/build.log
-          npm run build --prefix typescript/examples/web-ui 2>&1 | tee -a typescript/examples/web-ui/build.log
+          # Use npm ci when a lockfile exists (faster/clean). If no lockfile (we intentionally omit package-lock.json),
+          # fall back to npm install so CI doesn't fail with EUSAGE.
+          cd typescript/examples/web-ui
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+          npm run build 2>&1 | tee build.log
+        shell: bash
+          npm run build --prefix typescript/examples/web-ui 2>&1 | tee -a build.log
 
       - name: Deploy to Vercel (optional)
         id: vercel_deploy
