@@ -43,7 +43,11 @@
   },
   "overrides": {
     "rollup": "npm:@rollup/wasm-node@^4",
-    "vite>rollup": "npm:@rollup/wasm-node@^4",
-    "@vitejs/plugin-react>rollup": "npm:@rollup/wasm-node@^4"
+    "vite": {
+      "rollup": "npm:@rollup/wasm-node@^4"
+    },
+    "@vitejs/plugin-react": {
+      "rollup": "npm:@rollup/wasm-node@^4"
+    }
   }
 }
