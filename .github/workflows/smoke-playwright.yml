@@ -66,17 +66,11 @@ jobs:
           fi
         shell: bash
 
-      - name: Install Playwright OS packages (ubuntu)
-        run: |
-          sudo apt-get update
-          # Minimal set of libs commonly required by browsers in Playwright
-          sudo apt-get install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libxcomposite1 libxrandr2 libxshmfence1 libgbm1 libasound2 libpangocairo-1.0-0
-        shell: bash
-
       - name: Install Playwright browsers
         run: |
           cd typescript/examples/web-ui
-          npx playwright install --with-deps
+          # Try installing browsers with OS deps; if that fails, fall back to installing browsers only
+          npx playwright install --with-deps || npx playwright install chromium firefox webkit
         shell: bash
 
       - name: Run Playwright tests (mocked)
