@@ -41,6 +41,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Run the visaApi with a timeout so serverless functions don't hang for the full platform timeout
+async function runVisaApiWithTimeout(method: string, params: any, timeoutMs = 10_000) {
+	if (!visaApi || typeof visaApi.run !== 'function') throw new Error('visaApi not available');
+	const op = visaApi.run(method, params);
+	return await Promise.race([
+		op,
+		new Promise((_, rej) => setTimeout(() => rej(new Error('Visa API timeout')), timeoutMs)),
+	]);
+}
+
 // Health
 app.get('/api/health', (_req, res) => {
 	res.json({ ok: true });
@@ -53,12 +63,14 @@ app.get('/api/invoices', async (req, res) => {
 			const limit = Number(req.query.limit ?? 5);
 			const offset = Number(req.query.offset ?? 0);
 			const statusRaw = typeof req.query.status === 'string' ? String(req.query.status).toUpperCase() : undefined;
-			const body = await visaApi.run('list_invoices', { limit, offset, status: statusRaw });
+			const body = await runVisaApiWithTimeout('list_invoices', { limit, offset, status: statusRaw }, 10_000);
 			const parsed = typeof body === 'string' ? JSON.parse(body) : body;
 			if (parsed?.invoices && typeof parsed.total !== 'number') parsed.total = parsed.invoices.length;
 			return res.json(parsed);
 		} catch (e: any) {
-			return res.status(502).json({ error: true, message: 'Failed to list invoices (SANDBOX)', detail: String(e?.message || e) });
+			console.error('Error listing invoices', e);
+			const isTimeout = /timeout/i.test(String(e?.message || ''));
+			return res.status(isTimeout ? 504 : 502).json({ error: true, message: isTimeout ? 'Visa API timed out' : 'Failed to list invoices (SANDBOX)', detail: String(e?.message || e) });
 		}
 	}
 	// Mock minimal
@@ -72,12 +84,14 @@ app.get('/api/payment-links', async (req, res) => {
 			const offset = Number(req.query.offset ?? 0);
 			const statusRaw = typeof req.query.status === 'string' && req.query.status ? String(req.query.status).toUpperCase() : undefined;
 			const status = (statusRaw === 'ACTIVE' || statusRaw === 'INACTIVE') ? statusRaw : undefined;
-			const body = await visaApi.run('list_payment_links', { limit, offset, status });
+			const body = await runVisaApiWithTimeout('list_payment_links', { limit, offset, status }, 10_000);
 			const parsed = typeof body === 'string' ? JSON.parse(body) : body;
 			if (parsed?.paymentLinks && typeof parsed.total !== 'number') parsed.total = parsed.paymentLinks.length;
 			return res.json(parsed);
 		} catch (e: any) {
-			return res.status(502).json({ error: true, message: 'Failed to list payment links (SANDBOX)', detail: String(e?.message || e) });
+			console.error('Error listing payment links', e);
+			const isTimeout = /timeout/i.test(String(e?.message || ''));
+			return res.status(isTimeout ? 504 : 502).json({ error: true, message: isTimeout ? 'Visa API timed out' : 'Failed to list payment links (SANDBOX)', detail: String(e?.message || e) });
 		}
 	}
 	return res.json({ paymentLinks: [], total: 0 });
