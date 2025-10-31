@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 test('Pay Links panel shows API-provided linkType in Type badge', async ({ page }) => {
   // Use a local static server during tests. The test runner starts a simple
