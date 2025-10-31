@@ -34,13 +34,25 @@ jobs:
 
       - name: Deploy to Vercel (optional)
         id: vercel_deploy
-        if: ${{ secrets.VERCEL_TOKEN != '' && github.ref == 'refs/heads/main' }}
         run: |
+          # Only deploy from main and when VERCEL_TOKEN is present. We can't reference
+          # `secrets` directly in the `if:` expression at this level in some runners,
+          # so check at runtime instead.
+          if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "Not on main branch; skipping Vercel deploy"
+            echo "url=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
+            echo "VERCEL_TOKEN not set; skipping Vercel deploy"
+            echo "url=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           echo "Deploying web-ui to Vercel (production)"
           npm install -g vercel
           sudo apt-get update
           sudo apt-get install -y jq
-          DEPLOY_JSON=$(vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --confirm --cwd typescript/examples/web-ui --yes --json)
+          DEPLOY_JSON=$(vercel --prod --token "${{ secrets.VERCEL_TOKEN }}" --confirm --cwd typescript/examples/web-ui --yes --json)
           echo "Vercel output: $DEPLOY_JSON"
           URL=$(echo "$DEPLOY_JSON" | jq -r '.url')
           echo "url=$URL" >> "$GITHUB_OUTPUT"
