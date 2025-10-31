@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 test('Docs button opens REPO_DOCS_URL in a popup', async ({ page }) => {
   // Prefer the dev/web server root (Playwright webServer) when available; fall back to file:// for local file runs
